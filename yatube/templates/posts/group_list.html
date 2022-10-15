@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}
+{% for post in posts %}
+  <title> Записи сообщества {{ post.group }} </title>
+{% endfor %}
+{% endblock %}
+  <main> 
+    {% block content %}
+      <!-- класс py-5 создает отступы сверху и снизу блока -->
+      <div class="container py-5">
+        <h1> {{group.title}} </h1>
+          <p>
+            {{group.description}}
+          </p>
+            <article>
+              {% for post in page_obj %}
+              <ul>
+                <li>
+                  Автор: {{ post.author.get_full_name }}
+                </li>
+                <li>
+                  Дата публикации: {{ post.pub_date|date:"d E Y" }}
+                </li>
+              </ul>      
+                {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+                  <img class="card-img my-2" src="{{ im.url }}">
+                {% endthumbnail %}
+                <p>{{ post.text }}</p>
+            </article>
+            <!-- под последним постом нет линии -->
+            {% if not forloop.last %}<hr>{% endif %}
+            {% endfor %}
+
+            {% include 'posts/includes/paginator.html' %}
+      </div>
+    {% endblock %}  
+
+   
