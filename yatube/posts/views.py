@@ -140,7 +140,7 @@ def profile_follow(request, username):
         user=request.user,
         author=author
     ).exists()
-    if follower is True:
+    if follower:
         return redirect(
             'posts:profile',
             username=username

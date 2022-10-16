@@ -1,13 +1,18 @@
+import shutil
+import tempfile
 from http import HTTPStatus
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from ..models import Comment, Group, Post, User
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class PostCreateFormTests(TestCase):
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -64,12 +69,18 @@ class PostCreateFormTests(TestCase):
         self.assertTrue(Post.objects.filter(
                         text=form_data['text'],
                         group=self.group.id,
-                        author=self.user
+                        author=self.user,
+                        image='posts/small.gif'
                         ).exists())
         self.assertEqual(post_latest.text, form_data['text'])
         self.assertEqual(post_latest.group.id, form_data['group'])
         self.assertEqual(post_latest.group.id, form_data['image'])
         self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(settings.MEDIA_ROOT)
+        super().tearDownClass()
 
     def post_edit_form(self):
         """Валидная форма редактирует запись в БД."""
